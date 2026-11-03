@@ -1,5 +1,7 @@
 # superagent-platform
 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 生产级 agent 调度平台，整合两方向研究成果：
 
 1. **Router 批处理合并**（dir1：统一调度视角下 Agent 批处理与 LLM Serving 的同态结构）
@@ -73,19 +75,26 @@ src/
 ## 测试与验证
 
 ```bash
-# 必须在无反斜杠的 clean 副本中运行（工作区根目录名含字面 `\`，Node ESM 拒绝）
-# 1. 同步源码
-rsync -a --delete --exclude node_modules --exclude dist --exclude data ./ /home/liuzewen/builds/superagent-platform-clean/
+# 1. 安装依赖
+npm install
 # 2. 测试
-cd /home/liuzewen/builds/superagent-platform-clean && npx vitest run
+npx vitest run
 # 3. 类型检查（源码 + 测试）
 npx tsc --noEmit
 npx tsc --noEmit -p tsconfig.tests.json
 # 4. 构建
 npx tsc
-# 5. 启动服务器（clean 副本，监听 3081）
+# 5. 启动服务器（监听 3081）
 node dist/index.js
 ```
+
+> **路径提示**：如果你的工作区根目录名里含字面反斜杠（`\`），Node ESM / tsc / esbuild
+> 会把它当路径分隔符导致错位。遇到这种情况，把仓库同步到一个**不含反斜杠**的目录再跑：
+>
+> ```bash
+> rsync -a --delete --exclude node_modules --exclude dist --exclude data ./ /path/without/backslash/superagent-platform/
+> cd /path/without/backslash/superagent-platform && npm install && npx tsc
+> ```
 
 验证结果（2026-11-01）：
 - **14/14 测试通过**（router 6 + watchdog 8）
@@ -126,12 +135,11 @@ npm test
 # 14 测试：Router（合并/strongest/截断/抢占/重排）+ Watchdog（三形式/故障注入/clean 控制）
 ```
 
-> **构建注意**：本工作区根目录名含字面反斜杠（`F:\deepseek`），tsc/tsx/esbuild/Node ESM
-> 会把 `\` 当路径分隔符导致错位。构建必须走无反斜杠的 clean 副本：
+> **构建注意**：若工作区根目录名含字面反斜杠（`\`），tsc/tsx/esbuild/Node ESM
+> 会把 `\` 当路径分隔符导致错位。构建需走无反斜杠的副本，见上文「测试与验证」。
+>
+> 复制 `dist/` 回原工作区时同样要注意目标路径：
 >
 > ```bash
-> cp -r superagent-platform /home/liuzewen/builds/superagent-platform-clean
-> cd /home/liuzewen/builds/superagent-platform-clean
-> npm install && npx tsc
-> cp -r dist /home/liuzewen/F:\\deepseek/superagent-platform/
+> cp -r dist /path/to/your/workspace/superagent-platform/
 > ```
