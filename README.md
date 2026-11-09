@@ -1,5 +1,7 @@
 # superagent-platform
 
+[![CI](https://github.com/aidless/superagent-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/aidless/superagent-platform/actions/workflows/ci.yml)
+
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 生产级 agent 调度平台，整合两方向研究成果：
