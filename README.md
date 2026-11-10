@@ -1,5 +1,7 @@
 # superagent-platform
 
+> **English TL;DR**: A production-shaped agent scheduling platform that unifies two research directions: Router-side batch coalescing (explicit `token_budget`, prefix caching, preemption semantics) and Watchdog external supervision (stepwise/agentic criteria, fault-injection benchmark with clean controls). TypeScript, Express + dashboard on :3081. 14/14 vitest tests pass (2026-11-10, 644 ms). Stated boundary: research-integration codebase — the two directions are integrated but not benchmarked against a production baseline.
+
 [![CI](https://github.com/aidless/superagent-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/aidless/superagent-platform/actions/workflows/ci.yml)
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -75,6 +77,8 @@ src/
 - 逐步检查捕获冻结窗口（outcome-only 对卡住类判别力=0 的根因）
 
 ## 测试与验证
+
+> 2026-11-10 实跑（Node v24，`npm ci` 后）：`npx vitest run` → **Test Files 2 passed (2)，Tests 14 passed (14)，644 ms**。
 
 ```bash
 # 1. 安装依赖
