@@ -1,0 +1,129 @@
+{
+ "total": 20,
+ "passed": 20,
+ "failed": 0,
+ "selftest": false,
+ "failed_by_axis": {},
+ "results": [
+  {
+   "id": "SA-01",
+   "axis": "router/batch",
+   "ok": true,
+   "detail": "3"
+  },
+  {
+   "id": "SA-02",
+   "axis": "model/priority",
+   "ok": true,
+   "detail": "3000001000"
+  },
+  {
+   "id": "SA-03",
+   "axis": "router/strength",
+   "ok": true,
+   "detail": "high"
+  },
+  {
+   "id": "SA-04",
+   "axis": "router/strength",
+   "ok": true,
+   "detail": "c"
+  },
+  {
+   "id": "SA-05",
+   "axis": "router/budget",
+   "ok": true,
+   "detail": "5"
+  },
+  {
+   "id": "SA-06",
+   "axis": "router/budget",
+   "ok": true,
+   "detail": "12"
+  },
+  {
+   "id": "SA-07",
+   "axis": "router/preempt",
+   "ok": true,
+   "detail": "unavailable"
+  },
+  {
+   "id": "SA-08",
+   "axis": "router/preempt",
+   "ok": true,
+   "detail": "2"
+  },
+  {
+   "id": "SA-09",
+   "axis": "router/requeue",
+   "ok": true,
+   "detail": "False"
+  },
+  {
+   "id": "SA-10",
+   "axis": "router/requeue",
+   "ok": true,
+   "detail": "1"
+  },
+  {
+   "id": "SA-11",
+   "axis": "router/ticket",
+   "ok": true,
+   "detail": "10000"
+  },
+  {
+   "id": "SA-12",
+   "axis": "router/ticket",
+   "ok": true,
+   "detail": "exec"
+  },
+  {
+   "id": "SA-13",
+   "axis": "watchdog/form",
+   "ok": true,
+   "detail": "STALLED"
+  },
+  {
+   "id": "SA-14",
+   "axis": "watchdog/form",
+   "ok": true,
+   "detail": "ADVANCED"
+  },
+  {
+   "id": "SA-15",
+   "axis": "watchdog/form",
+   "ok": true,
+   "detail": "STALLED"
+  },
+  {
+   "id": "SA-16",
+   "axis": "watchdog/trajectory",
+   "ok": true,
+   "detail": "10"
+  },
+  {
+   "id": "SA-17",
+   "axis": "watchdog/trajectory",
+   "ok": true,
+   "detail": "12"
+  },
+  {
+   "id": "SA-18",
+   "axis": "watchdog/fault",
+   "ok": true,
+   "detail": "off-track"
+  },
+  {
+   "id": "SA-19",
+   "axis": "config/validate",
+   "ok": true,
+   "detail": "raised ZodError"
+  },
+  {
+   "id": "SA-20",
+   "axis": "watchdog/fault",
+   "ok": true,
+   "detail": "raised TypeError"
+  }
+ ]
+}

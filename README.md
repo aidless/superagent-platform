@@ -149,3 +149,47 @@ npm test
 > ```bash
 > cp -r dist /path/to/your/workspace/superagent-platform/
 > ```
+
+## 验收标准与复算
+
+**验收判据**：本仓判为合格的条件是 `python3 eval/run_cases.py` 通过率必须为 100%（20/20），且 `make eval` 退出码必须为 0；任何一条失败即判为不合格。
+
+`eval/cases.jsonl` 的 20 条题目**全部真调本仓 API**（用本仓 `src/` 的构建产物 `dist/*.js`：`Router` / `evaluate` / `generateTrajectory` / `PolicySchema` / `computePriority`），期望值由实跑现算，不是抄文档；`source` 指向真实源码行。每条的 `verify` 就是该题的**复算代码**，改一行实现就可能让它变红，这正是这套题的意义。
+
+| axis | 条数 | 覆盖的行为 |
+|---|---|---|
+| router/batch | 1 | 三个 Trigger 合并成单个 Eval 的批大小 |
+| router/strength | 2 | strongest = 强度最高；同强度取时间较新 |
+| router/budget | 2 | `tokenBudget` 截断（12→5）与预算内不截断（12→12） |
+| router/preempt | 2 | 抢占后 decision=`unavailable`、被驱逐 Trigger 回填 pending |
+| router/requeue | 2 | `RequeueTracker` 上限判定、`markAllExpired()` 重排回填 |
+| router/ticket | 2 | accept 生成 Ticket 的 `contextBudget` 与 `mandate.action` |
+| watchdog/form | 3 | stuck→STALLED、clean→ADVANCED（假阳性守卫）、slow 被 outcome-only 误判 |
+| watchdog/trajectory | 2 | 轨迹状态点数：clean 到 target 即停（10）/ stuck 冻结跑满（12） |
+| watchdog/fault | 2 | off-track 三值判定；空轨迹 `evaluate()` 抛 `TypeError` |
+| model/priority | 1 | `computePriority('high', 1000, 'PRIORITY')` 的数值 |
+| config/validate | 1 | `PolicySchema.parse({tokenBudget: 0})` 抛 `ZodError` |
+
+三条命令（在仓库根执行）：
+
+```bash
+python3 eval/run_cases.py            # 必须 20/20（退出码 0）
+python3 eval/run_cases.py --selftest # 反证：篡改首题期望值 → 必须 19/20 变红且退出码 0
+make eval                            # 一键复跑，退出码必须为 0
+```
+
+**复算说明**：`python3 eval/run_cases.py --save` 会把本次逐题结果与失败归因写进 `eval/run-report.json`，该文件可随时由同一条命令重建（题目即复算代码，无需人工翻日志）。判据不是 README 里的一句话，而是 `--selftest` 证明过会红的 20 条可执行断言。
+
+> 路径说明：本工作区根目录名含字面反斜杠，Node ESM 直接加载会报 `ERR_INVALID_MODULE_SPECIFIER`。因此每条题目的 `verify` 先用 `rsync` 把 `dist/`、`src/`、`node_modules/zod` 同步到 `/tmp/sap-eval-clean`（无反斜杠），再在那里用 `node --input-type=module` 调本仓 API。题库跑在真实构建产物上，不是重新实现。
+
+**失败归因**（按 axis 汇总，不止报通过率）：`run_cases.py` 与 `run-report.json` 的 `failed_by_axis` 把失败题目按 axis 归桶，例如 `--selftest` 的实跑输出：
+
+```
+19/20 cases passed
+失败归因（按 axis）：
+  router/batch: 1 条 —— SA-01
+```
+
+即"批处理合并"这一族断言失效，而不是笼统的"通过率 95%"。定位顺序：先看 axis 桶 → 再按 `source` 打开对应源码行 → 用该题 `verify` 单独复跑。
+
+> 范围声明：本次只新增 `eval/`、根级 `Makefile` 与本 README 小节，未改源码与既有测试。顺带记录一处**只报告不改**的实现缺陷：`src/core/router.ts:158-206` 的 `tokenBudget` 截断路径注释写「剩余留到下一轮」，但第 206 行无条件 `thread.pending = []` 会把截断余下（12→5 时是 7 个）Trigger 直接丢弃，`pending` 实测为 0。
