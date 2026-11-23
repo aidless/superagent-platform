@@ -2,9 +2,9 @@
  * tests/watchdog.test.ts
  *
  * Watchdog 判据测试：
- * - outcome-only 对卡住类故障判别力=0（真盲区）
- * - stepwise 对卡住类故障判别力=1
- * - agentic 更早检测
+ * - outcome-only leaves a completion-threshold freeze unmarked
+ * - stepwise marks that stuck trajectory STALLED
+ * - agentic uses a one-step window; this file does not claim an earlier from-step
  * - slow 假阳性（outcome-only 误判合法慢推进）
  * - off-track 全形式检测
  */
@@ -33,7 +33,7 @@ describe('Watchdog 判据', () => {
     watchdog = new Watchdog(defaultPolicy());
   });
 
-  it('outcome-only 对卡住类故障判别力=0（真盲区）', () => {
+  it('outcome-only marks clean, stuck, and silent-stuck ADVANCED when the freeze sits on the completion threshold', () => {
     const faultTypes: Array<'clean'|'stuck'|'silent-stuck'|'off-track'|'slow'> = ['clean', 'stuck', 'silent-stuck'];
     for (const fault of faultTypes) {
       const traj = makeFaultTrajectory(fault, 12);
@@ -48,7 +48,7 @@ describe('Watchdog 判据', () => {
     }
   });
 
-  it('stepwise 对卡住类故障判别力=1（检测 STALLED）', () => {
+  it('stepwise marks the stuck trajectory STALLED', () => {
     const stuck = makeFaultTrajectory('stuck', 12);
     const result = evaluate(stuck, config('stepwise'));
     expect(result.verdict).toBe('STALLED');
@@ -66,13 +66,15 @@ describe('Watchdog 判据', () => {
     expect(result.verdict).toBe('STALLED');
   });
 
-  it('agentic 更早检测（比 stepwise 更早窗口）', () => {
+  it('agentic and stepwise both mark stuck STALLED at the same from-step', () => {
     const stuck = makeFaultTrajectory('stuck', 12);
     const stepwiseResult = evaluate(stuck, config('stepwise'));
     const agenticResult = evaluate(stuck, config('agentic'));
-    expect(agenticResult.verdict).toBe('STALLED');
-    // 两者都检测，但 agentic 用更早窗口（stepwise 窗口 2，agentic 窗口更小/更早）
     expect(stepwiseResult.verdict).toBe('STALLED');
+    expect(agenticResult.verdict).toBe('STALLED');
+    expect(agenticResult.evidence?.frozenSteps).toBe(1);
+    expect(stepwiseResult.evidence?.frozenSteps).toBe(2);
+    expect(agenticResult.evidence?.frozenFromStep).toBe(stepwiseResult.evidence?.frozenFromStep);
   });
 
   it('slow 被 outcome-only 误判为卡住（假阳性）', () => {

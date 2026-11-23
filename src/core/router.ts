@@ -161,7 +161,7 @@ export class Router {
       toProcess = [...thread.pending];
     } else {
       toProcess = thread.pending.slice(0, budget);
-      // 剩余留到下一轮
+      // The tail is not kept. start() clears pending again after this slice.
       thread.pending = thread.pending.slice(budget);
     }
 
@@ -202,7 +202,7 @@ export class Router {
     thread.evaluating = evalObj;
     thread.status = 'evaluating';
 
-    // 清空 pending（已合并进 Eval）
+    // Clears pending, including any tail left by the tokenBudget slice above.
     thread.pending = [];
 
     this.evals.set(evalId.value, evalObj);

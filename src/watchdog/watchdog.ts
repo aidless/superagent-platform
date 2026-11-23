@@ -4,9 +4,8 @@
  * Watchdog 监督器：对执行中的 Ticket/Assignment 做逐步检查
  * 集成 dir2 判据三形式（outcome-only / stepwise / agentic）
  *
- * 核心机制（dir2 结论）：
- * - outcome-only 对卡住类判别力 = 0.000 → 默认禁用（有盲区）
- * - stepwise / agentic 判别力 = 1.000 → 推荐配置
+ * 默认 policy 的 form 是 stepwise。outcome-only 仍可被选中，没有在这里禁用。
+ * 合成网格上的漏报和误报由 eval/score_watchdog.ts 现算，不在这里写死比率。
  */
 
 import { type Policy, type WatchdogForm } from '../core/types.js';
@@ -100,8 +99,8 @@ export class Watchdog {
 }
 
 /**
- * 故障注入基准复用（dir2_fault_injection.py 的 TS 版）
- * 用于集成测试：构造已知故障轨迹验证 Watchdog 判别力
+ * 合成轨迹入口，参数与 eval/watchdog_labels.json 的 generator 对齐。
+ * 单元测试用它构造单条轨迹；网格计数不在这里计算。
  */
 export function makeFaultTrajectory(
   fault: 'clean' | 'stuck' | 'silent-stuck' | 'off-track' | 'slow',

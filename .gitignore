@@ -10,6 +10,9 @@ data/*.db-shm
 data/*.db-wal
 data/*.sqlite
 
+# Optional dump from eval/run_cases.py --save. Not a source of truth.
+eval/run-report.json
+
 # Logs
 *.log
 npm-debug.log*

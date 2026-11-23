@@ -1,4 +1,4 @@
-name: Publish to PyPI
+name: No package publish
 on:
   workflow_dispatch:
   release:
@@ -6,25 +6,15 @@ on:
 permissions:
   contents: read
 jobs:
-  build-publish:
+  refuse-publish:
     runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      id-token: write
     steps:
-      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v4
-      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v5
-        with:
-          python-version: "3.11"
-      - name: Build
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Do not publish to PyPI or npm
         run: |
           set -euo pipefail
-          python -m pip install --quiet build
-          if ls pyproject.toml setup.py setup.cfg >/dev/null 2>&1; then
-            python -m build --sdist --wheel --outdir dist/
-          else
-            echo "no packaging metadata; skipping build"
+          if [ -f pyproject.toml ] || [ -f setup.py ] || [ -f setup.cfg ]; then
+            echo "Python packaging metadata is present. Refusing to treat a skip as a publish."
+            exit 1
           fi
-      - name: Publish (trusted publishing)
-        if: ${{ github.event_name == 'release' && hashFiles('pyproject.toml', 'setup.py', 'setup.cfg') != '' }}
-        uses: pypa/gh-action-pypi-publish@2442bad8f54b06a326f3030ef5e6a7a674118557 # release/v1
+          echo "No package is uploaded. This repository is not published to PyPI or npm."
