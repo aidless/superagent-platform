@@ -9,8 +9,7 @@
   * `doc`    —— `verify` 形如 `相对路径::正则`，断言该正则在文件里出现。
 - `expr` 题的期望值必须是**真跑出来的**，不是抄文档：改一行实现就可能让它变红，
   这正是这套题的意义。
-- `--selftest` 把第一条 case 的 expected 篡改成不可能的值，必须变红 —— 否则这套题是装饰
-  （对应 AGENTS.md 第 8 条 / 第 21 条的 RED→GREEN 两段断言）。
+- `--selftest` 把第一条 case 的 expected 篡改成不可能的值，必须变红 —— 否则这套题是装饰。
 - 退出码：0 全过；1 有失败；2 题库本身有问题（读不了/字段缺/重复 id）。
 
 用法：
@@ -31,6 +30,41 @@ from typing import NoReturn
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CASES = REPO_ROOT / "eval" / "cases.jsonl"
 REQUIRED = ("id", "axis", "question", "expected", "mode", "verify", "source")
+_EVAL_WORKDIR: Path | None = None
+
+
+def prepare_eval_workdir() -> Path:
+    """Copy the built library into a temp directory whose path has no backslash.
+
+    Node ESM mis-parses an absolute path that contains a literal backslash.
+    The copy includes package.json (`"type": "module"`) and zod, which the
+    regression cases import. A clean temp directory is required: an older
+    copy into a fixed /tmp path could pass only because a previous package.json
+    was left behind. The directory is cached for this process.
+    """
+    global _EVAL_WORKDIR
+    if _EVAL_WORKDIR is not None:
+        return _EVAL_WORKDIR
+    import shutil
+    import tempfile
+
+    dist = REPO_ROOT / "dist"
+    zod = REPO_ROOT / "node_modules" / "zod"
+    if not (dist / "core" / "router.js").is_file():
+        die("dist/ is missing; run `npx tsc` before the regression harness")
+    if not zod.is_dir():
+        die("node_modules/zod is missing; run `npm ci` before the regression harness")
+
+    root = Path(tempfile.mkdtemp(prefix="sap-eval-"))
+    if "\\" in str(root):
+        die(f"temp directory contains a backslash: {root}")
+    shutil.copytree(dist, root / "dist")
+    shutil.copytree(REPO_ROOT / "src", root / "src")
+    (root / "node_modules").mkdir()
+    shutil.copytree(zod, root / "node_modules" / "zod")
+    shutil.copy2(REPO_ROOT / "package.json", root / "package.json")
+    _EVAL_WORKDIR = root
+    return root
 
 # 裸克隆（未 pip install -e .）也要能跑：把仓库根放到 sys.path 最前。
 if str(REPO_ROOT) not in sys.path:

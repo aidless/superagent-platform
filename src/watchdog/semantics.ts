@@ -63,9 +63,8 @@ export interface WatchdogConfig {
 /**
  * evaluate()：按三形式之一判定轨迹
  *
- * dir2 核心结果：
- * - outcome-only 对卡住类判别力 = 0.000（终值相同无法区分冻结与正常推进）
- * - stepwise / agentic 判别力 = 1.000（逐步检查捕获冻结窗口）
+ * Counts, misses, and false positives for the frozen synthetic grid are
+ * produced by eval/score_watchdog.ts. This function does not store a rate.
  */
 export function evaluate(trajectory: Trajectory, config: WatchdogConfig): WatchdogResult {
   const { states, target } = trajectory;
@@ -128,7 +127,8 @@ export function evaluate(trajectory: Trajectory, config: WatchdogConfig): Watchd
     }
 
     case 'agentic': {
-      // 在线：单步增量 ≤ minProgressStep 即 STALLED（比 stepwise 更早，1 步窗口）
+      // 在线：窗口长度固定为 1 步，不用配置里的 stallWindowSteps。
+      // 是否比 stepwise 更早报警由 score_watchdog 的 fromStep 测量，这里不假定。
       const frozen = detectStall(states, 1, config.minProgressStep);
       if (frozen.found) {
         return {

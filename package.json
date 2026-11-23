@@ -1,7 +1,7 @@
 {
   "name": "superagent-platform",
   "version": "0.1.0",
-  "description": "生产级 agent 调度平台：Router 批处理合并 + token_budget 显式化 + Watchdog 外部监督（逐步检查判据）",
+  "description": "研究集成原型，不是生产调度器：Router 把同线程 Trigger 合并进一次 Eval，并用显式 token_budget 截断；Watchdog 在合成轨迹上对照植入故障与干净/慢速控制。不连接在线模型，也没有对生产基线做基准。",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

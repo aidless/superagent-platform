@@ -1,0 +1,33 @@
+{
+  "protocol": "watchdog-synthetic-grid-v1",
+  "oracle": "should_flag is assigned from the planted role and is not a checker output. clean_control and slow_control are non-defects. planted_stall and planted_off_track are defects. This file does not store checker output.",
+  "generator": {
+    "nSteps": 12,
+    "baseProgressPerStep": 10,
+    "faultStartStep": 9,
+    "target": 100
+  },
+  "criterion": {
+    "stallWindowSteps": 2,
+    "minProgressStep": 0.05,
+    "completionThreshold": 0.9,
+    "checkDirection": true
+  },
+  "cells": [
+    {"id": "clean/outcome-only", "fault": "clean", "form": "outcome-only", "role": "clean_control", "should_flag": false},
+    {"id": "clean/stepwise", "fault": "clean", "form": "stepwise", "role": "clean_control", "should_flag": false},
+    {"id": "clean/agentic", "fault": "clean", "form": "agentic", "role": "clean_control", "should_flag": false},
+    {"id": "stuck/outcome-only", "fault": "stuck", "form": "outcome-only", "role": "planted_stall", "should_flag": true},
+    {"id": "stuck/stepwise", "fault": "stuck", "form": "stepwise", "role": "planted_stall", "should_flag": true},
+    {"id": "stuck/agentic", "fault": "stuck", "form": "agentic", "role": "planted_stall", "should_flag": true},
+    {"id": "silent-stuck/outcome-only", "fault": "silent-stuck", "form": "outcome-only", "role": "planted_stall", "should_flag": true},
+    {"id": "silent-stuck/stepwise", "fault": "silent-stuck", "form": "stepwise", "role": "planted_stall", "should_flag": true},
+    {"id": "silent-stuck/agentic", "fault": "silent-stuck", "form": "agentic", "role": "planted_stall", "should_flag": true},
+    {"id": "off-track/outcome-only", "fault": "off-track", "form": "outcome-only", "role": "planted_off_track", "should_flag": true},
+    {"id": "off-track/stepwise", "fault": "off-track", "form": "stepwise", "role": "planted_off_track", "should_flag": true},
+    {"id": "off-track/agentic", "fault": "off-track", "form": "agentic", "role": "planted_off_track", "should_flag": true},
+    {"id": "slow/outcome-only", "fault": "slow", "form": "outcome-only", "role": "slow_control", "should_flag": false},
+    {"id": "slow/stepwise", "fault": "slow", "form": "stepwise", "role": "slow_control", "should_flag": false},
+    {"id": "slow/agentic", "fault": "slow", "form": "agentic", "role": "slow_control", "should_flag": false}
+  ]
+}
